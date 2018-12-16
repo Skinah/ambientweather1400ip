@@ -96,7 +96,9 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
                 try {
                     long start = System.currentTimeMillis();
                     String webResponse = AmbientWeather1400IPHandler.this.callWebUpdate();
-                    logger.trace("AmbientWeather1400 gateway call took {} msec", (System.currentTimeMillis() - start));
+                    long responseTime = (System.currentTimeMillis() - start);
+                    logger.trace("AmbientWeather1400 gateway call took {} msec", responseTime);
+                    updateState(WEB_RESPONSE, new DecimalType(responseTime));
                     // in case we come back from an outage -> set status online
                     if (!getThing().getStatus().equals(ThingStatus.ONLINE)) {
                         updateStatus(ThingStatus.ONLINE);
@@ -136,7 +138,7 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
                 .get(AmbientWeather1400IPBindingConstants.CONFIG_SCANRATE);
 
         if (freq == null) {
-            freq = new BigDecimal(60);
+            freq = new BigDecimal(25);
         }
         this.setScanrate(freq.intValue());
 
@@ -253,20 +255,19 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
 
         Document doc = Jsoup.parse(html);
         Elements elements = doc.select("input");
-        logger.trace("found {} inputs", elements.size());
+        logger.debug("found {} inputs", elements.size());
         for (Element element : elements) {
             String elementName = element.attr("name");
-            logger.trace("found input element with name {} ", elementName);
+            logger.debug("found input element with name {} ", elementName);
             String channelName = this.inputMapper.get(elementName);
             if (channelName != null) {
-                logger.trace("found channel name {} for element {} ", channelName, elementName);
+                logger.debug("found channel name {} for element {} ", channelName, elementName);
                 String value = element.attr("value");
-                logger.trace("found channel name {} for element {}, value is {} ", channelName, elementName, value);
+                logger.debug("found channel name {} for element {}, value is {} ", channelName, elementName, value);
                 this.updateHandlers.get(channelName).processMessage(value);
             } else {
-                logger.trace("no channel found for input element {} ", elementName);
+                logger.debug("no channel found for input element {} ", elementName);
             }
         }
     }
-
 }
