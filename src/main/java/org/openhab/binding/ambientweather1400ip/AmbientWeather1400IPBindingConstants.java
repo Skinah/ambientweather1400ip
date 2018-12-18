@@ -21,6 +21,8 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 public class AmbientWeather1400IPBindingConstants {
 
     private static final String BINDING_ID = "ambientweather1400ip";
+    public static final String rebootUrl = "/msgreboot.htm";
+    public static final String livedata = "/livedata.htm";
 
     // List of all Thing Type UIDs
     public static final ThingTypeUID THING_TYPE_AMBIENTWEATHER1400IP = new ThingTypeUID(BINDING_ID, "weatherstation");
@@ -48,4 +50,5 @@ public class AmbientWeather1400IPBindingConstants {
     public static final String CONFIG_HOSTNAME = "hostname";
     public static final String CONFIG_SCANRATE = "scanrate";
     public static final String WEB_RESPONSE = "web_response";
+    public static final String REBOOT = "reboot";
 }

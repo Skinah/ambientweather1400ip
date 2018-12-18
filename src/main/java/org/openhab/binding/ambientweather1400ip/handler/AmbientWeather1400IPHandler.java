@@ -11,17 +11,16 @@ package org.openhab.binding.ambientweather1400ip.handler;
 import static org.openhab.binding.ambientweather1400ip.AmbientWeather1400IPBindingConstants.*;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -38,7 +37,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.openhab.binding.ambientweather1400ip.AmbientWeather1400IPBindingConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +47,14 @@ import org.slf4j.LoggerFactory;
  * @author Thomas Hentschel - Initial contribution
  */
 public class AmbientWeather1400IPHandler extends BaseThingHandler {
+
+    private final Logger logger = LoggerFactory.getLogger(AmbientWeather1400IPHandler.class);
+    private String hostname = "";
+    private int scanrate = 20;
+    private Map<String, UpdateHandler> updateHandlers;
+    private Map<String, String> inputMapper;
+    private ScheduledFuture<?> poller = null;
+    private Runnable updatetask = null;
 
     class UpdateHandler {
         private AmbientWeather1400IPHandler handler;
@@ -63,27 +69,16 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
             acceptedDataTypes.add(acceptedType);
         }
 
-        @SuppressWarnings("null")
-        public void processMessage(String message) {
-            String value = message.toUpperCase();
-            // only if there was a real change
-            if (value.equalsIgnoreCase(this.currentState) == false) {
-                this.currentState = value;
-                State state = TypeParser.parseState(this.acceptedDataTypes, value);
-                this.handler.updateState(this.channel.getUID(), state);
+        public void processMessage(String sensorValue) {
+            if (getThing().getStatus().equals(ThingStatus.ONLINE)) {
+                if (!Objects.equals(sensorValue, this.currentState)) {
+                    this.currentState = sensorValue;
+                    State state = TypeParser.parseState(this.acceptedDataTypes, sensorValue);
+                    this.handler.updateState(this.channel.getUID(), state);
+                }
             }
         }
     }
-
-    private static String livedata = "/livedata.htm";
-    private final Logger logger = LoggerFactory.getLogger(AmbientWeather1400IPHandler.class);
-    private String hostname = "";
-    private int scanrate = 60;
-    private Map<String, UpdateHandler> updateHandlers;
-    private Map<String, String> inputMapper;
-
-    private ScheduledFuture<?> poller = null;
-    private Runnable updatetask = null;
 
     public AmbientWeather1400IPHandler(Thing thing) {
         super(thing);
@@ -95,9 +90,9 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
             public void run() {
                 try {
                     long start = System.currentTimeMillis();
-                    String webResponse = AmbientWeather1400IPHandler.this.callWebUpdate();
+                    String webResponse = AmbientWeather1400IPHandler.this.callWebUpdate(livedata);
                     long responseTime = (System.currentTimeMillis() - start);
-                    logger.trace("AmbientWeather1400 gateway call took {} msec", responseTime);
+                    logger.debug("AmbientWeather1400 gateway call took {} msec", responseTime);
                     updateState(WEB_RESPONSE, new DecimalType(responseTime));
                     // in case we come back from an outage -> set status online
                     if (!getThing().getStatus().equals(ThingStatus.ONLINE)) {
@@ -125,22 +120,8 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
             this.poller.cancel(true);
         }
 
-        this.hostname = (String) getThing().getConfiguration()
-                .get(AmbientWeather1400IPBindingConstants.CONFIG_HOSTNAME);
-        // basic sanity
-        if (this.hostname == null || this.hostname.equals("")) {
-            String msg = "Invalid hostname '" + this.hostname + ", please check configuration";
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, msg);
-            return;
-        }
-
-        BigDecimal freq = (BigDecimal) getThing().getConfiguration()
-                .get(AmbientWeather1400IPBindingConstants.CONFIG_SCANRATE);
-
-        if (freq == null) {
-            freq = new BigDecimal(25);
-        }
-        this.setScanrate(freq.intValue());
+        scanrate = Integer.parseInt(getThing().getConfiguration().get(CONFIG_SCANRATE).toString());
+        this.hostname = getThing().getConfiguration().get(CONFIG_HOSTNAME).toString();
 
         this.createChannel(INDOOR_TEMP, DecimalType.class, "inTemp");
         this.createChannel(OUTDOOR_TEMP, DecimalType.class, "outTemp");
@@ -166,34 +147,7 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
         this.updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_PENDING,
                 "Contacting weather station...");
 
-        this.poller = this.scheduler.scheduleWithFixedDelay(this.updatetask, 1, this.getScanrate(), TimeUnit.SECONDS);
-    }
-
-    @SuppressWarnings("null")
-    @Override
-    public void handleConfigurationUpdate(@NonNull Map<@NonNull String, @NonNull Object> config) {
-
-        boolean changed = false;
-
-        String hostname_new = (String) config.get(AmbientWeather1400IPBindingConstants.CONFIG_HOSTNAME);
-        if (hostname_new != null && !hostname_new.equals(this.hostname)) {
-            this.hostname = hostname_new;
-            changed = true;
-        }
-
-        BigDecimal scanrate_new = (BigDecimal) config.get(AmbientWeather1400IPBindingConstants.CONFIG_SCANRATE);
-        if (scanrate_new != null && this.getScanrate() != scanrate_new.intValue()) {
-            this.setScanrate(scanrate_new.intValue());
-            changed = true;
-        }
-
-        if (changed) {
-            if (this.poller != null && !this.poller.isDone()) {
-                this.poller.cancel(true);
-            }
-            this.poller = this.scheduler.scheduleWithFixedDelay(this.updatetask, 1, this.getScanrate(),
-                    TimeUnit.SECONDS);
-        }
+        this.poller = this.scheduler.scheduleWithFixedDelay(this.updatetask, 1, scanrate, TimeUnit.SECONDS);
     }
 
     @Override
@@ -208,16 +162,28 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        // No commands but refresh to handle for this device
-        if (command instanceof RefreshType) {
-            // only allow one refresh channel poll
-            // every update updates all channels anyways, so no need to blast the weather station with the
-            // same request just run the web get + parse task inline, it will do the right thing
-            if (channelUID.getId().equals(OUTDOOR_TEMP)) {
-                if (this.updatetask != null) {
-                    this.updatetask.run();
+
+        switch (channelUID.getId()) {
+
+            case OUTDOOR_TEMP:
+                if (command instanceof RefreshType) {
+                    // only allow one refresh channel poll
+                    // every update updates all channels anyways, so no need to blast the weather station
+                    if (this.updatetask != null) {
+                        this.updatetask.run();
+                    }
                 }
-            }
+                break;
+            case REBOOT:
+                if ("ON".equals(command.toString())) {
+                    logger.info("!!! A reboot of the IP Observer unit has been triggered. !!!");
+                    try {
+                        callWebUpdate(rebootUrl);
+                    } catch (IOException e) {
+                        logger.error("Error occured when trying to reboot the IP Observer, fault reported was {}", e);
+                    }
+                }
+                break;
         }
     }
 
@@ -228,9 +194,9 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
         this.inputMapper.put(htmlName, chanName);
     }
 
-    private String callWebUpdate() throws IOException {
+    private String callWebUpdate(String urlPage) throws IOException {
 
-        String urlStr = "http://" + this.hostname + livedata;
+        String urlStr = "http://" + this.hostname + urlPage;
         URL url = new URL(urlStr);
         URLConnection connection = url.openConnection();
         try {
@@ -242,31 +208,22 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
         }
     }
 
-    private long getScanrate() {
-        return this.scanrate;
-    }
-
-    private void setScanrate(int value) {
-        this.scanrate = value;
-    }
-
-    @SuppressWarnings("null")
     private void parseAndUpdate(String html) {
 
         Document doc = Jsoup.parse(html);
         Elements elements = doc.select("input");
-        logger.debug("found {} inputs", elements.size());
+        logger.trace("found {} inputs", elements.size());
         for (Element element : elements) {
             String elementName = element.attr("name");
-            logger.debug("found input element with name {} ", elementName);
+            logger.trace("found input element with name {} ", elementName);
             String channelName = this.inputMapper.get(elementName);
             if (channelName != null) {
-                logger.debug("found channel name {} for element {} ", channelName, elementName);
+                logger.trace("found channel name {} for element {} ", channelName, elementName);
                 String value = element.attr("value");
-                logger.debug("found channel name {} for element {}, value is {} ", channelName, elementName, value);
+                logger.trace("found channel name {} for element {}, value is {} ", channelName, elementName, value);
                 this.updateHandlers.get(channelName).processMessage(value);
             } else {
-                logger.debug("no channel found for input element {} ", elementName);
+                logger.trace("no channel found for input element {} ", elementName);
             }
         }
     }
