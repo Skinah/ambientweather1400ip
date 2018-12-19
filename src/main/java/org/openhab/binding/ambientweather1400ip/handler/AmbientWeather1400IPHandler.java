@@ -99,6 +99,16 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
                         updateStatus(ThingStatus.ONLINE);
                     }
                     AmbientWeather1400IPHandler.this.parseAndUpdate(webResponse);
+
+                    if (Integer.parseInt(getThing().getConfiguration().get(CONFIG_SCANRATE).toString()) > 0
+                            && responseTime > Integer
+                                    .parseInt(getThing().getConfiguration().get(CONFIG_SCANRATE).toString())) {
+                        logger.info(
+                                "An Auto reboot of the IP Observer unit has been triggered as the response was {}ms.",
+                                responseTime);
+                        callWebUpdate(rebootUrl);
+                    }
+
                 } catch (Throwable e) {
                     logger.error(e.getMessage());
                     if (!getThing().getStatus().equals(ThingStatus.OFFLINE)) {
