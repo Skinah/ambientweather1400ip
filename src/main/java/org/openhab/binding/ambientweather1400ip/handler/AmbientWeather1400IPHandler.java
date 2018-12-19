@@ -99,10 +99,10 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
                         updateStatus(ThingStatus.ONLINE);
                     }
                     AmbientWeather1400IPHandler.this.parseAndUpdate(webResponse);
+                    int autoRebootThreshold = Integer
+                            .parseInt(getThing().getConfiguration().get(CONFIG_AUTO_REBOOT).toString());
 
-                    if (Integer.parseInt(getThing().getConfiguration().get(CONFIG_SCANRATE).toString()) > 0
-                            && responseTime > Integer
-                                    .parseInt(getThing().getConfiguration().get(CONFIG_SCANRATE).toString())) {
+                    if (autoRebootThreshold > 0 && responseTime > autoRebootThreshold) {
                         logger.info(
                                 "An Auto reboot of the IP Observer unit has been triggered as the response was {}ms.",
                                 responseTime);
