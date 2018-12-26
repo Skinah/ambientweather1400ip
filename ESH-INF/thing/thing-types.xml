@@ -56,7 +56,7 @@
         <item-type>Number</item-type>
         <label>Web Response</label>
         <description>How many milliseconds it took to fetch the sensor readings from livedata.htm</description>
-        <state pattern="%f ms" readOnly="true"/>
+        <state pattern="%f" readOnly="true"/>
     </channel-type>
     <channel-type id="temp_chan_indoor">
         <item-type>Number</item-type>
