@@ -231,7 +231,9 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
                 logger.trace("found channel name {} for element {} ", channelName, elementName);
                 String value = element.attr("value");
                 logger.trace("found channel name {} for element {}, value is {} ", channelName, elementName, value);
-                this.updateHandlers.get(channelName).processMessage(value);
+                if (value != null) {
+                    this.updateHandlers.get(channelName).processMessage(value);
+                }
             } else {
                 logger.trace("no channel found for input element {} ", elementName);
             }
