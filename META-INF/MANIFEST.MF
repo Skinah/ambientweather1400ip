@@ -8,7 +8,7 @@ Bundle-Name: AmbientWeather1400IP Binding
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.openhab.binding.ambientweather1400ip;singleton:=true
 Bundle-Vendor: openHAB
-Bundle-Version: 2.4.0.qualifier
+Bundle-Version: 2.5.0.qualifier
 Export-Package: 
  org.openhab.binding.ambientweather1400ip,
  org.openhab.binding.ambientweather1400ip.handler
@@ -17,6 +17,7 @@ Import-Package:
  org.openhab.binding.ambientweather1400ip,
  org.openhab.binding.ambientweather1400ip.handler,
  org.eclipse.jdt.annotation;resolution:=optional,
+ org.osgi.service.component.annotations;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.thing,
