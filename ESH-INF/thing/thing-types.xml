@@ -30,6 +30,7 @@
             <channel id="battery_in" typeId="battery_indoor"/>
             <channel id="web_response" typeId="web_response"/>
             <channel id="reboot" typeId="reboot"/>
+            <channel id="receiver_time" typeId="receiver_time"/>            
 		</channels>
 
         <config-description>
@@ -196,5 +197,11 @@
         <label>Reboot the IP Observer unit</label>
         <description>If scraping fails to work you can trigger a reboot of the hardware either manually or via a rule.</description>
     </channel-type>
-
+        <channel-type id="receiver_time">
+        <item-type>String</item-type>
+        <label>Receiver Time</label>
+        <description>Time of the last livedata scrape.</description>
+        <category>Time</category>
+        <state readOnly="true"/>
+    </channel-type>
 </thing:thing-descriptions>

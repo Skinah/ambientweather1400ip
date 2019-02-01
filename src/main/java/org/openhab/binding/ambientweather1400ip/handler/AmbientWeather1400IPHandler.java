@@ -152,6 +152,7 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
         this.createChannel(YEARLY_RAIN, DecimalType.class, "rainofyearly");
         this.createChannel(BATTERY_OUT, StringType.class, "outBattSta1");
         this.createChannel(BATTERY_IN, StringType.class, "inBattSta");
+        this.createChannel(RECEIVER_TIME, StringType.class, "CurrTime");
 
         // stay offline, the poller will figure the right state in a sec...
         this.updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_PENDING,
