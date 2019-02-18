@@ -144,39 +144,39 @@
         <state pattern="%.1f" readOnly="true"/>
     </channel-type>
     <channel-type id="hourly_rain">
-        <item-type>Number</item-type>
+        <item-type>Number:Length</item-type>
         <label>Hourly Rain Rate</label>
         <description>Hourly Rain Rate</description>
         <category>Rain</category>
-        <state pattern="%.2f" readOnly="true"/>
+        <state pattern="%.2f %unit%" readOnly="true"/>
     </channel-type>
     <channel-type id="daily_rain">
-        <item-type>Number</item-type>
+        <item-type>Number:Length</item-type>
         <label>Daily Rain</label>
         <description>Daily Rain</description>
         <category>Rain</category>
-        <state pattern="%.2f" readOnly="true"/>
+        <state pattern="%.2f %unit%" readOnly="true"/>
     </channel-type>
     <channel-type id="weekly_rain">
-        <item-type>Number</item-type>
+        <item-type>Number:Length</item-type>
         <label>Weekly Rain</label>
         <description>Weekly Rain</description>
         <category>Rain</category>
-        <state pattern="%.2f" readOnly="true"/>
+        <state pattern="%.2f %unit%" readOnly="true"/>
     </channel-type>
     <channel-type id="monthly_rain">
-        <item-type>Number</item-type>
+        <item-type>Number:Length</item-type>
         <label>Monthly Rain</label>
         <description>Monthly Rain</description>
         <category>Rain</category>
-        <state pattern="%.2f" readOnly="true"/>
+        <state pattern="%.2f %unit%" readOnly="true"/>
     </channel-type>
     <channel-type id="yearly_rain">
-        <item-type>Number</item-type>
+        <item-type>Number:Length</item-type>
         <label>Yearly Rain</label>
         <description>Yearly Rain</description>
         <category>Rain</category>
-        <state pattern="%.2f" readOnly="true"/>
+        <state pattern="%.2f %unit%" readOnly="true"/>
     </channel-type>
     <channel-type id="battery_outdoor">
         <item-type>String</item-type>
