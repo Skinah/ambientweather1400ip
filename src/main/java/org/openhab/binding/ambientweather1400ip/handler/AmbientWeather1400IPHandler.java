@@ -142,6 +142,7 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
         this.createChannel(WIND_DIRECTION, DecimalType.class, "windir");
         this.createChannel(WIND_SPEED, DecimalType.class, "avgwind");
         this.createChannel(WIND_GUST, DecimalType.class, "gustspeed");
+        this.createChannel(DAILY_GUST, DecimalType.class, "dailygust");
         this.createChannel(SOLAR_RADIATION, DecimalType.class, "solarrad");
         this.createChannel(UV, DecimalType.class, "uv");
         this.createChannel(UVI, DecimalType.class, "uvi");
@@ -209,8 +210,12 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
 
         String urlStr = "http://" + this.hostname + urlPage;
         URL url = new URL(urlStr);
+        logger.trace("AWS opening connection");
         URLConnection connection = url.openConnection();
+        connection.setConnectTimeout(5000);
+        connection.setReadTimeout(5000);
         try {
+            logger.trace("Getting stream now");
             String response = IOUtils.toString(connection.getInputStream());
             logger.trace("AWS response = {}", response);
             return response;

@@ -37,6 +37,7 @@ public class AmbientWeather1400IPBindingConstants {
     public static final String WIND_DIRECTION = "wind_direction";
     public static final String WIND_SPEED = "wind_speed";
     public static final String WIND_GUST = "wind_gust";
+    public static final String DAILY_GUST = "daily_gust";
     public static final String SOLAR_RADIATION = "solar_radiation";
     public static final String UV = "uv";
     public static final String UVI = "uvi";
