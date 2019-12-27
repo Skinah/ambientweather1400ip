@@ -207,7 +207,6 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
     }
 
     private String callWebUpdate(String urlPage) throws IOException {
-
         String urlStr = "http://" + this.hostname + urlPage;
         URL url = new URL(urlStr);
         logger.trace("AWS opening connection");
@@ -215,11 +214,13 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
         connection.setConnectTimeout(5000);
         connection.setReadTimeout(5000);
         try {
+            connection.connect();
             logger.trace("Getting stream now");
             String response = IOUtils.toString(connection.getInputStream());
             logger.trace("AWS response = {}", response);
             return response;
         } finally {
+            logger.trace("Closing inputstream now");
             IOUtils.closeQuietly(connection.getInputStream());
         }
     }
