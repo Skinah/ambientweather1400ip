@@ -53,7 +53,7 @@
 		</config-description>
 	</thing-type>
 	
-	   <channel-type id="web_response">
+	<channel-type id="web_response">
 		<item-type>Number</item-type>
 		<label>Web Response</label>
 		<description>How many milliseconds it took to fetch the sensor readings from livedata.htm</description>
