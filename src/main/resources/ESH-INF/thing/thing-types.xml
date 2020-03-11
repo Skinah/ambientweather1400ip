@@ -16,6 +16,7 @@
 			<channel id="rel_pressure" typeId="pressure_chan_rel"/>
 			<channel id="wind_direction" typeId="direction_chan"/>
 			<channel id="wind_speed" typeId="speed_chan_avg"/>
+			<channel id="wind_speed2" typeId="chan_wind_speed"/>
 			<channel id="wind_gust" typeId="speed_chan_gust"/>
 			<channel id="daily_gust" typeId="speed_chan_daily_gust"/>			 
 			<channel id="solar_radiation" typeId="radiation_chan"/>
@@ -136,6 +137,13 @@
 		<category>Wind</category>
 		<state pattern="%.1f" readOnly="true"/>
 	</channel-type>
+	<channel-type id="chan_wind_speed">
+        <item-type>Number</item-type>
+        <label>Wind Speed</label>
+        <description>Wind Speed</description>
+        <category>Wind</category>
+        <state pattern="%.1f" readOnly="true"/>
+    </channel-type>
 	<channel-type id="speed_chan_gust">
 		<item-type>Number</item-type>
 		<label>Wind Gust</label>

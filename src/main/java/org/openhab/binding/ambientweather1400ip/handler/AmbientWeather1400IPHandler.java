@@ -75,10 +75,12 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
 
         public void processMessage(String sensorValue) {
             if (getThing().getStatus().equals(ThingStatus.ONLINE)) {
-                if (!Objects.equals(sensorValue, this.currentState)) {
-                    this.currentState = sensorValue;
-                    State state = TypeParser.parseState(this.acceptedDataTypes, sensorValue);
-                    this.handler.updateState(this.channel.getUID(), state);
+                if (sensorValue != null) {
+                    if (!Objects.equals(sensorValue, this.currentState)) {
+                        this.currentState = sensorValue;
+                        State state = TypeParser.parseState(this.acceptedDataTypes, sensorValue);
+                        this.handler.updateState(this.channel.getUID(), state);
+                    }
                 }
             }
         }
@@ -145,6 +147,7 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
         this.createChannel(REL_PRESSURE, DecimalType.class, "RelPress");
         this.createChannel(WIND_DIRECTION, DecimalType.class, "windir");
         this.createChannel(WIND_SPEED, DecimalType.class, "avgwind");
+        this.createChannel(WIND_SPEED2, DecimalType.class, "windspeed");
         this.createChannel(WIND_GUST, DecimalType.class, "gustspeed");
         this.createChannel(DAILY_GUST, DecimalType.class, "dailygust");
         this.createChannel(SOLAR_RADIATION, DecimalType.class, "solarrad");
