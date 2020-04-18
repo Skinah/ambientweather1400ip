@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2019 Contributors to the openHAB project
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -10,6 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
+
 package org.openhab.binding.ambientweather1400ip.handler;
 
 import static org.openhab.binding.ambientweather1400ip.AmbientWeather1400IPBindingConstants.*;
@@ -75,10 +76,10 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
 
         public void processMessage(String sensorValue) {
             if (getThing().getStatus().equals(ThingStatus.ONLINE)) {
-                if (sensorValue != null) {
-                    if (!Objects.equals(sensorValue, this.currentState)) {
-                        this.currentState = sensorValue;
-                        State state = TypeParser.parseState(this.acceptedDataTypes, sensorValue);
+                if (!Objects.equals(sensorValue, this.currentState)) {
+                    this.currentState = sensorValue;
+                    State state = TypeParser.parseState(this.acceptedDataTypes, sensorValue);
+                    if (state != null) {
                         this.handler.updateState(this.channel.getUID(), state);
                     }
                 }
@@ -90,7 +91,6 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
         super(thing);
         this.updateHandlers = new HashMap<String, UpdateHandler>();
         this.inputMapper = new HashMap<String, String>();
-
         this.updatetask = new Runnable() {
             @Override
             public void run() {
@@ -98,7 +98,7 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
                     long start = System.currentTimeMillis();
                     String webResponse = AmbientWeather1400IPHandler.this.callWebUpdate(livedata);
                     long responseTime = (System.currentTimeMillis() - start);
-                    logger.debug("AmbientWeather1400 gateway call took {} msec", responseTime);
+                    // logger.debug("AmbientWeather1400 gateway call took {} msec", responseTime);
                     updateState(WEB_RESPONSE, new DecimalType(responseTime));
                     // in case we come back from an outage -> set status online
                     if (!getThing().getStatus().equals(ThingStatus.ONLINE)) {
@@ -181,9 +181,7 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-
         switch (channelUID.getId()) {
-
             case OUTDOOR_TEMP:
                 if (command instanceof RefreshType) {
                     // only allow one refresh channel poll
@@ -195,7 +193,7 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
                 break;
             case REBOOT:
                 if ("ON".equals(command.toString())) {
-                    logger.info("!!! A reboot of the IP Observer unit has been triggered. !!!");
+                    logger.info("A reboot of the IP Observer unit has been triggered.");
                     try {
                         callWebUpdate(rebootUrl);
                     } catch (IOException e) {
@@ -216,40 +214,36 @@ public class AmbientWeather1400IPHandler extends BaseThingHandler {
     private String callWebUpdate(String urlPage) throws IOException {
         String urlStr = "http://" + this.hostname + urlPage;
         URL url = new URL(urlStr);
-        logger.trace("AWS opening connection");
         URLConnection connection = url.openConnection();
         connection.setConnectTimeout(5000);
         connection.setReadTimeout(5000);
         try {
             connection.connect();
-            logger.trace("Getting stream now");
             String response = IOUtils.toString(connection.getInputStream());
-            logger.trace("AWS response = {}", response);
+            logger.trace("Response = {}", response);
             return response;
         } finally {
-            logger.trace("Closing inputstream now");
             IOUtils.closeQuietly(connection.getInputStream());
         }
     }
 
     private void parseAndUpdate(String html) {
-
         Document doc = Jsoup.parse(html);
         Elements elements = doc.select("input");
-        logger.trace("found {} inputs", elements.size());
+        // logger.trace("found {} inputs", elements.size());
         for (Element element : elements) {
             String elementName = element.attr("name");
-            logger.trace("found input element with name {} ", elementName);
+            // logger.trace("found input element with name {} ", elementName);
             String channelName = this.inputMapper.get(elementName);
             if (channelName != null) {
-                logger.trace("found channel name {} for element {} ", channelName, elementName);
+                // logger.trace("found channel name {} for element {} ", channelName, elementName);
                 String value = element.attr("value");
-                logger.trace("found channel name {} for element {}, value is {} ", channelName, elementName, value);
+                // logger.trace("found channel name {} for element {}, value is {} ", channelName, elementName, value);
                 if (value != null) {
                     this.updateHandlers.get(channelName).processMessage(value);
                 }
             } else {
-                logger.trace("no channel found for input element {} ", elementName);
+                logger.trace("No channel was found for input element {} ", elementName);
             }
         }
     }
