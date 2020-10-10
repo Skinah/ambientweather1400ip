@@ -14,7 +14,7 @@
 package org.openhab.binding.ambientweather1400ip;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.openhab.core.thing.ThingTypeUID;
 
 /**
  * The {@link AmbientWeather1400IPBindingConstants} class defines common constants, which are
