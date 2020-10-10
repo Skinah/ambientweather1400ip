@@ -61,5 +61,4 @@ public class AmbientWeather1400IPBindingConstants {
     public static final String CONFIG_HOSTNAME = "hostname";
     public static final String CONFIG_SCANRATE = "scanrate";
     public static final String CONFIG_AUTO_REBOOT = "autoReboot";
-
 }
