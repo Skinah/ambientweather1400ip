@@ -5,9 +5,8 @@
 	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
 
 	<thing-type id="weatherstation">
-		<label>Weather Station with Ip Observer</label>
+		<label>Weather Station</label>
 		<description>Use for any weather station sold under multiple brands that come with an IP Observer unit.</description>
-
 		<channels>
 			<channel id="indoor_temp" typeId="temp_chan_indoor"/>
 			<channel id="outdoor_temp" typeId="temp_chan_outdoor"/>
