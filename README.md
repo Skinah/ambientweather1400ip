@@ -1,6 +1,6 @@
 # Ambient Weather WS-1400IP Binding
 
-This is the binding for the Ambient Weather WS-1400IP weather station, via local updates.
+This is a binding for the Ambient Weather WS-1400IP weather station and any other branded units that use an IPObserver module. It scrapes the livedata.htm webpage that the module offers and means cloud free and fully local weather updates.
 
 ## Supported Things
 
@@ -13,72 +13,32 @@ Ambient Weather WS-1400IP weather station locally via the IPObserver module (not
 
 No automatic discovery, manual configuration
 
-## Binding Configuration
+## Configuration
 
-*.things
+Leave all on defaults unless you have issues. It only needs the IP address for it to come online.
 
+## Example Sitemap
 
-```
-
-Thing ambientweather1400ip:weatherstation:Weather1 [hostname="192.168.1.243", autoReboot=5000, scanrate=20]
-
-```
-
-
-
-*.items
-
-```
-
-Number WeatherOutdoorTemp "Outdoor Temp" {channel="ambientweather1400ip:weatherstation:Weather1:outdoor_temp"}
-Number WeatherOutdoorHumidity "Outdoor Humidity %" {channel="ambientweather1400ip:weatherstation:Weather1:outdoor_humidity"}
-Number WeatherWindDir "Wind Direction" {channel="ambientweather1400ip:weatherstation:Weather1:wind_direction"}
-Number WeatherWindSpeed "Wind Speed" {channel="ambientweather1400ip:weatherstation:Weather1:wind_speed"}
-Number WeatherWindGust "Wind Gust" {channel="ambientweather1400ip:weatherstation:Weather1:wind_gust"}
-Number WeatherSolarRad "Solar Radiation" {channel="ambientweather1400ip:weatherstation:Weather1:solar_radiation"}
-Number WeatherUV "UV" {channel="ambientweather1400ip:weatherstation:Weather1:uv"}
-Number WeatherUVIndex "UV Index" {channel="ambientweather1400ip:weatherstation:Weather1:uvi"}
-Number WeatherRainHourly "Rain Hourly mm" {channel="ambientweather1400ip:weatherstation:Weather1:hourly_rain"}
-Number WeatherRainDaily "Rain Last 24 hours mm" {channel="ambientweather1400ip:weatherstation:Weather1:daily_rain"}
-Number WeatherRainWeekly "Rain this week mm" {channel="ambientweather1400ip:weatherstation:Weather1:weekly_rain"}
-Number WeatherRainMonthly "Rain this month mm" {channel="ambientweather1400ip:weatherstation:Weather1:monthly_rain"}
-Number WeatherRainYearly "Rain this year mm" {channel="ambientweather1400ip:weatherstation:Weather1:yearly_rain"}
-String WeatherBatteryOut "Battery Status" {channel="ambientweather1400ip:weatherstation:Weather1:battery_out"}
-Number WeatherResponse "Response (ms)" {channel="ambientweather1400ip:weatherstation:Weather1:web_response"}
-Switch WeatherReboot "Reboot Station" {channel="ambientweather1400ip:weatherstation:Weather1:reboot"}
-
-
-```
-
+In openHAB V3.x make sure you select SETTINGS>MODEL> 'create equipment from thing' after you login as an admin. Then the below should work with the auto generated items that the above creates.
 
 *.sitemap
 
 ```
 
     Text label="WeatherStation" icon="rain"{
-        Default item=WeatherOutdoorTemp
-        Default item=WeatherOutdoorHumidity
-        Default item=WeatherWindDir
-        Default item=WeatherWindSpeed
-        Default item=WeatherWindGust
-        Default item=WeatherSolarRad
-        Default item=WeatherUV
-        Default item=WeatherUVIndex
-        Default item=WeatherRainHourly
-        Default item=WeatherRainDaily
-        Default item=WeatherRainWeekly
-        Default item=WeatherRainMonthly
-        Default item=WeatherRainYearly
-        Default item=WeatherBatteryOut
-        Default item=WeatherResponse
-        Default item=WeatherReboot
+        Default item=WeatherStation_OutdoorTemperature icon=temperature
+        Default item=WeatherStation_OutdoorHumidity icon=humidity
+        Default item=WeatherStation_WindDirection icon=wind
+        Default item=WeatherStation_WindSpeed icon=wind
+        Default item=WeatherStation_SolarRadiation icon=sun
+        Default item=WeatherStation_UVIndex icon=sun
+        Default item=WeatherStation_HourlyRainRate icon=rain
+        Default item=WeatherStation_DailyRain icon=rain
+        Default item=WeatherStation_WeeklyRain icon=rain
+        Default item=WeatherStation_MonthlyRain icon=rain
+        Default item=WeatherStation_YearlyRain icon=rain
+        Default item=WeatherStation_ReboottheIPObserverunit
     }
 
 
 ```
-
-
-## Channels
-
-Channels are based on what is available on the local ObserverIP web page
-![Alt Ambient Weather WS-1400IP channels](web/channels.png?raw=true "Ambient Weather WS-1400IP channels")
